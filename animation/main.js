@@ -1,22 +1,14 @@
-window.addEventListener('DOMContentLoaded', () => {
-    const btn = document.querySelector('.btn');
-
-    btn.addEventListener('click', myAnimation);
-
-    function myAnimation() {
-        const elem = document.querySelector('.box');
-        let pos = 0;
-
-        const id = setInterval(fade, 10);
-
-        function fade() {
-            if (pos == 300) {
-                clearInterval(id);
-            } else {
-                pos++;
-                elem.style.top = pos + 'px';
-                elem.style.left = pos + 'px';
-            }
-        }
+class Rectangle {
+    constructor (width, height) {
+        this.width = width;
+        this.height = height;
     }
-});
+
+    double() {
+        return this.width * this.height;
+    }
+
+}
+
+const squer = new Rectangle(10, 10);
+console.log(squer.double());
