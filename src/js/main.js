@@ -97,8 +97,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // Modal
 
     const modalTrigger = document.querySelectorAll('[data-modal]'),
-          modal = document.querySelector('.modal'),
-          closeModalBtn = document.querySelector('[data-close]');
+          modal = document.querySelector('.modal');
 
     function openModal() {
         modal.classList.remove('hide');
@@ -119,10 +118,8 @@ window.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = '';
     }
 
-    closeModalBtn.addEventListener('click', closeModal);
-
     modal.addEventListener('click', event => {
-        if (event.target === modal) {
+        if (event.target === modal || e.target.getAttribute('data-close') == '') {
             closeModal();
         }
     });
@@ -212,6 +209,78 @@ window.addEventListener('DOMContentLoaded', () => {
         11,
         ".menu .container",
     ).render();
+
+    //Forms
+
+    const forms = document.querySelectorAll('form');
+
+    forms.forEach(item => {
+        postData(item);
+    });
+
+    const massage = {
+        loading: 'Загрузка',
+        success: 'Спасибо! Скоро мы с вами свяжемся',
+        failure: 'Что-то пошло не так...'
+    }
+
+    function postData(form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const statusMassange = document.createElement('div');
+            statusMassange.classList.add('status');
+            statusMassange.textContent = massage.loading;
+            form.append(statusMassange);
+
+            const request = new XMLHttpRequest();
+
+            request.open('POST', 'server.php');
+            request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+
+            const formData = new FormData(form);
+
+            const object = {};
+            formData.forEach(function (value, key) {
+                object[key] = value;
+            });
+
+            const convert = JSON.stringify(object);
+            request.send(convert);
+
+            request.addEventListener('load', () => {
+                if (request.status === 200) {
+                    console.log(request.response);
+                    statusMassange.textContent = massage.success;
+                    form.reset();
+                    setTimeout(() => {
+                        statusMassange.remove();
+                    }, 3000)
+                } else {
+                    statusMassange.textContent = massage.failure;
+                }
+            })
+        });
+    }
+
+    function showThenksModal(massage) {
+        const prevModalDialog = document.querySelector('.modal__dialog');
+
+        prevModalDialog.classList.add('hide');
+        openModal();
+
+        const thinksModal = document.createElement('div');
+
+        thinksModal.classList.add('modal__dialog');
+        thinksModal.innerHTML = `
+            <div class="modal__content">
+                <div class="modal__close" data-close>×</div>
+                <div class="modal__title">${massage}</div>
+            </div>
+        `;
+
+        document.querySelector('.modal').append(thinksModal);
+    }
 });
 
 
