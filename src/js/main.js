@@ -42,7 +42,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     //Timer
 
-    const deadline = '2020-10-13';
+    const deadline = '2020-12-13';
 
     function getTimeRemaining(endtime) {
         const t = Date.parse(endtime) - Date.parse(new Date()),
@@ -119,7 +119,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     modal.addEventListener('click', event => {
-        if (event.target === modal || e.target.getAttribute('data-close') == '') {
+        if (event.target === modal || event.target.getAttribute('data-close') == '') {
             closeModal();
         }
     });
@@ -130,7 +130,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const modalTimerId = setTimeout(openModal, 5000);
+    const modalTimerId = setTimeout(openModal, 50000);
 
     function showModalByScroll() {
         if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
@@ -219,7 +219,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     const massage = {
-        loading: 'Загрузка',
+        loading: 'img/form/spinner.svg',
         success: 'Спасибо! Скоро мы с вами свяжемся',
         failure: 'Что-то пошло не так...'
     }
@@ -228,10 +228,14 @@ window.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            const statusMassange = document.createElement('div');
-            statusMassange.classList.add('status');
-            statusMassange.textContent = massage.loading;
-            form.append(statusMassange);
+            const statusMassange = document.createElement('img');
+            statusMassange.src = massage.loading;
+            statusMassange.style.cssText = `
+                display: block;
+                margin: 0 auto;
+            `;
+
+            form.insertAdjacentElement('afterend', statusMassange); // Добавляем спинер не в форму, а сразу же после нее!
 
             const request = new XMLHttpRequest();
 
@@ -251,35 +255,39 @@ window.addEventListener('DOMContentLoaded', () => {
             request.addEventListener('load', () => {
                 if (request.status === 200) {
                     console.log(request.response);
-                    statusMassange.textContent = massage.success;
-                    form.reset();
-                    setTimeout(() => {
-                        statusMassange.remove();
-                    }, 3000)
+                    showThanksModal(massage.success);
+                    form.reset(); // Сброс всех данных
+                    statusMassange.remove(); // Удаленние значка загрузки
                 } else {
-                    statusMassange.textContent = massage.failure;
+                    showThanksModal(massage.failure);
                 }
             })
         });
     }
 
-    function showThenksModal(massage) {
+    function showThanksModal(massage) {
         const prevModalDialog = document.querySelector('.modal__dialog');
 
         prevModalDialog.classList.add('hide');
         openModal();
 
-        const thinksModal = document.createElement('div');
+        const thanksModal = document.createElement('div');
 
-        thinksModal.classList.add('modal__dialog');
-        thinksModal.innerHTML = `
+        thanksModal.classList.add('modal__dialog');
+        thanksModal.innerHTML = `
             <div class="modal__content">
                 <div class="modal__close" data-close>×</div>
                 <div class="modal__title">${massage}</div>
             </div>
         `;
 
-        document.querySelector('.modal').append(thinksModal);
+        document.querySelector('.modal').append(thanksModal);
+        setTimeout(() => {
+            thanksModal.remove();
+            prevModalDialog.classList.add('show');
+            prevModalDialog.classList.remove('hide');
+            closeModal();
+        }, 4000);
     }
 });
 
