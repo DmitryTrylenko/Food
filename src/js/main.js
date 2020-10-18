@@ -237,31 +237,32 @@ window.addEventListener('DOMContentLoaded', () => {
 
             form.insertAdjacentElement('afterend', statusMassange); // Добавляем спинер не в форму, а сразу же после нее!
 
-            const request = new XMLHttpRequest();
-
-            request.open('POST', 'server.php');
-            request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+           // request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 
             const formData = new FormData(form);
 
             const object = {};
             formData.forEach(function (value, key) {
-                object[key] = value;
+               object[key] = value;
             });
 
-            const convert = JSON.stringify(object);
-            request.send(convert);
-
-            request.addEventListener('load', () => {
-                if (request.status === 200) {
-                    console.log(request.response);
-                    showThanksModal(massage.success);
-                    form.reset(); // Сброс всех данных
-                    statusMassange.remove(); // Удаленние значка загрузки
-                } else {
-                    showThanksModal(massage.failure);
-                }
+           fetch('server.php', {
+            method: "POST",
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify(object)
             })
+            .then(data => data.text())
+            .then(data => {
+                console.log(data);
+                showThanksModal(massage.success);
+                statusMassange.remove(); // Удаленние значка загрузки
+            }).catch(() => {
+                 showThanksModal(massage.failure);
+            }).finally(() => {
+                form.reset(); // Сброс всех данных
+            });
         });
     }
 
